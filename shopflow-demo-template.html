@@ -27,86 +27,94 @@
 <script>
 const CONFIG = {
   // ── Business info ────────────────────────────────
-  botName:        'Ace',
-  businessName:   'Golf Sheds',
-  tagline:        'Luxury Outdoor Golf Simulators',
-  siteUrl:        'https://golfsheds.com',
+  botName:        'Alex',
+  businessName:   'Alloy Personal Training',
+  tagline:        'Superior Personal Training For An Active Lifestyle',
+  siteUrl:        'https://alloypersonaltraining.com',
 
   // ── Appearance ───────────────────────────────────
-  primaryColor:   '#2d6a4f',   // main accent color
-  darkMode:       true,        // true = dark bg, false = light bg
-  launcherEmoji:  '⛳',
+  primaryColor:   '#e8530a',   // main accent color
+  darkMode:       false,        // true = dark bg, false = light bg
+  launcherEmoji:  '💪',
 
   // ── Teaser bubble ────────────────────────────────
-  teaserText:     '⛳ Find your perfect simulator setup →',
+  teaserText:     '💪 Find your perfect training program →',
 
   // ── CTA type ─────────────────────────────────────
-  ctaType:        'quote',     // shop | book | order | quote | visit
+  ctaType:        'book',     // shop | book | order | quote | visit
 
   // ── Proxy ────────────────────────────────────────
   proxyUrl:       'https://shopflow-demo-proxy-production.up.railway.app/api/chat',
 
   // ── Quiz questions ───────────────────────────────
   quiz: [
-    {
-      id: 'use',
-      q: 'What\'s your primary use for the GolfShed?',
-      opts: [
-        { l: '🏠 Personal backyard golf', v: 'personal' },
-        { l: '🤝 Entertaining & hosting',  v: 'entertaining' },
-        { l: '🏋️ Serious game improvement', v: 'training' },
-        { l: '💼 Commercial / business',   v: 'commercial' },
-      ]
-    },
-    {
-      id: 'space',
-      q: 'How much outdoor space do you have?',
-      opts: [
-        { l: '📐 Compact — tight backyard', v: 'compact' },
-        { l: '🌿 Medium — standard yard',   v: 'medium' },
-        { l: '🏡 Large — plenty of room',   v: 'large' },
-        { l: '🔍 Not sure yet',             v: 'unsure' },
-      ]
-    },
-    {
-      id: 'timeline',
-      q: 'What\'s your timeline?',
-      opts: [
-        { l: '⚡ ASAP — ready to move',   v: 'asap' },
-        { l: '📅 This season',            v: 'season' },
-        { l: '🔭 Researching for now',    v: 'researching' },
-      ]
-    },
-  ],
+  {
+    id: 'goal',
+    q: 'What\'s your main fitness goal?',
+    opts: [
+      { l: '💪 Build strength & muscle',    v: 'strength' },
+      { l: '🔥 Lose weight & burn fat',      v: 'weight' },
+      { l: '🏃 Improve energy & endurance',  v: 'energy' },
+      { l: '🦴 Reduce pain & move better',   v: 'mobility' },
+      { l: '🌟 Overall health & longevity',  v: 'health' },
+    ]
+  },
+  {
+    id: 'experience',
+    q: 'What\'s your current fitness level?',
+    opts: [
+      { l: '🌱 Just getting started',        v: 'beginner' },
+      { l: '🌿 Some experience',             v: 'some' },
+      { l: '💪 Fairly active',               v: 'active' },
+      { l: '🏆 Very experienced',            v: 'experienced' },
+    ]
+  },
+  {
+    id: 'timeline',
+    q: 'When are you looking to start?',
+    opts: [
+      { l: '⚡ ASAP — I\'m ready now',       v: 'now' },
+      { l: '📅 Within the next few weeks',   v: 'soon' },
+      { l: '🔍 Just exploring options',      v: 'exploring' },
+    ]
+  },
+],
 
-  // ── Categories / products ────────────────────────
-  categories: [
-    { emoji: '🏌️', name: 'XLE Edition',      tag: 'Most Popular',  desc: 'Ultra luxury in a compact space. Starting at $72,900.',    url: '/home/#models' },
-    { emoji: '⭐',  name: 'Platinum Edition', tag: 'Best Value',    desc: 'Spacious and luxurious. Starting at $96,900.',              url: '/home/#models' },
-    { emoji: '👑',  name: 'Platinum+',        tag: 'Flagship',      desc: 'Our largest model — 330 sq ft. Starting at $109,800.',     url: '/home/#models' },
-    { emoji: '🏆',  name: 'Captain Edition',  tag: 'Ultimate',      desc: 'Includes Trackman IO simulator. $211,900.',                url: '/home/#models' },
-  ],
+categories: [
+  { emoji: '👥', name: 'Small Group Training',   tag: 'Most Popular',    desc: 'Expert-led sessions with up to 6 people. Personalized attention, accountability, and real results.',                        url: '/' },
+  { emoji: '🎯', name: 'Free Starting Point Session', tag: 'Best First Step', desc: 'Meet with a coach, get an InBody body composition scan, and build a plan tailored to your goals. No commitment.',  url: '/' },
+  { emoji: '📱', name: 'Trainerize App',         tag: 'Train Anywhere',  desc: 'Access your program, track workouts, and stay accountable between sessions from your phone.',                              url: '/' },
+  { emoji: '🏋️', name: 'Strength & Mobility',   tag: 'For 45-65+',      desc: 'Programs built for your body — reduce joint pain, improve energy, and build confidence that carries into everyday life.', url: '/' },
+],
 
-  // ── Deals / banners ──────────────────────────────
-  deals: [
-    {
-      name: '🎯 Free Quote & 3D Rendering',
-      desc: 'Get detailed pricing and a virtual 3D walkthrough — no commitment required.',
-      cta:  'Get Free Quote',
-      url:  '/home/#contact',
-    },
-  ],
+deals: [
+  {
+    name: '🎯 Free Starting Point Session',
+    desc: 'Schedule a complimentary session where you\'ll meet a coach, get an InBody scan, and get a personalized plan — no commitment required.',
+    cta: 'Book Free Session',
+    url: '/',
+  },
+],
 
-  // ── AI system prompt ─────────────────────────────
-  systemPrompt: `You are Ace, a knowledgeable GolfShed advisor for GolfSheds (golfsheds.com).
+systemPrompt: `You are Alex, a friendly and knowledgeable personal training advisor for Alloy Personal Training (alloypersonaltraining.com).
 
-ABOUT: Pre-fabricated luxury outdoor golf simulator buildings. Ships nationwide. Installation included.
-MODELS: XLE ($72,900+), Platinum ($96,900+), Platinum+ ($109,800+), Captain ($211,900 incl. Trackman IO).
-UPGRADES: Furnishings, blackout shades, rooftop deck, Murphy bed, theater package, mini bar, A/C & heating.
-SIMULATORS: Compatible with Trackman, Uneekor, Foresight Sports, Garmin.
-SHOWROOM: 644 N State St, Orem, UT 84057.
+ABOUT ALLOY:
+- Nearly 30 years of superior customized personal training
+- Small group training — max 6 people per session for personalized attention
+- Expert certified trainers focused on safety, results, and community
+- Especially effective for adults 45-65+ looking to build strength, reduce pain, and improve energy
+- Uses InBody body composition scanning for precise goal tracking
+- App-based training via Trainerize for workouts between sessions
+- Sessions average $40-50 depending on program
 
-ROLE: Help visitors find the right model. Always push for a free quote request. Keep responses 2-4 sentences.`,
+KEY OFFER: Free Starting Point Session — meet a coach, get an InBody scan, build a personalized plan. No commitment.
+
+YOUR ROLE:
+- Help visitors find the right program for their goals and fitness level
+- Always push toward booking the free Starting Point Session as the easiest next step
+- Be warm, encouraging, and non-intimidating — many clients haven't exercised in years
+- Emphasize that no experience is needed and all fitness levels are welcome
+- Keep responses 2-4 sentences max`,
 };
 </script>
 
