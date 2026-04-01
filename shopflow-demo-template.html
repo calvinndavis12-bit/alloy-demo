@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Shopflow Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+
+<!-- ============================================================
+     SHOPFLOW DEMO TEMPLATE — v1.0
+     ============================================================
+     To create a new demo, only edit the CONFIG block below.
+     Deploy the file to Cloudflare Pages and set a custom domain.
+
+     CTA TYPES:
+       'shop'   → "Shop [name] →"       (retail / ecommerce)
+       'book'   → "Book Consultation →" (services / spa)
+       'order'  → "Order Now →"         (food / beverage)
+       'quote'  → "Request Free Quote →"(high-ticket / B2B)
+       'visit'  → "Visit the Store →"   (local retail)
+
+     THEME:
+       Set primaryColor to any hex — all accents derive from it.
+       Set darkMode: true for dark bg, false for light bg.
+     ============================================================ -->
+<script>
+const CONFIG = {
+  // ── Business info ────────────────────────────────
+  botName:        'Ace',
+  businessName:   'Golf Sheds',
+  tagline:        'Luxury Outdoor Golf Simulators',
+  siteUrl:        'https://golfsheds.com',
+
+  // ── Appearance ───────────────────────────────────
+  primaryColor:   '#2d6a4f',   // main accent color
+  darkMode:       true,        // true = dark bg, false = light bg
+  launcherEmoji:  '⛳',
+
+  // ── Teaser bubble ────────────────────────────────
+  teaserText:     '⛳ Find your perfect simulator setup →',
+
+  // ── CTA type ─────────────────────────────────────
+  ctaType:        'quote',     // shop | book | order | quote | visit
+
+  // ── Proxy ────────────────────────────────────────
+  proxyUrl:       'https://shopflow-demo-proxy-production.up.railway.app/api/chat',
+
+  // ── Quiz questions ───────────────────────────────
+  quiz: [
+    {
+      id: 'use',
+      q: 'What\'s your primary use for the GolfShed?',
+      opts: [
+        { l: '🏠 Personal backyard golf', v: 'personal' },
+        { l: '🤝 Entertaining & hosting',  v: 'entertaining' },
+        { l: '🏋️ Serious game improvement', v: 'training' },
+        { l: '💼 Commercial / business',   v: 'commercial' },
+      ]
+    },
+    {
+      id: 'space',
+      q: 'How much outdoor space do you have?',
+      opts: [
+        { l: '📐 Compact — tight backyard', v: 'compact' },
+        { l: '🌿 Medium — standard yard',   v: 'medium' },
+        { l: '🏡 Large — plenty of room',   v: 'large' },
+        { l: '🔍 Not sure yet',             v: 'unsure' },
+      ]
+    },
+    {
+      id: 'timeline',
+      q: 'What\'s your timeline?',
+      opts: [
+        { l: '⚡ ASAP — ready to move',   v: 'asap' },
+        { l: '📅 This season',            v: 'season' },
+        { l: '🔭 Researching for now',    v: 'researching' },
+      ]
+    },
+  ],
+
+  // ── Categories / products ────────────────────────
+  categories: [
+    { emoji: '🏌️', name: 'XLE Edition',      tag: 'Most Popular',  desc: 'Ultra luxury in a compact space. Starting at $72,900.',    url: '/home/#models' },
+    { emoji: '⭐',  name: 'Platinum Edition', tag: 'Best Value',    desc: 'Spacious and luxurious. Starting at $96,900.',              url: '/home/#models' },
+    { emoji: '👑',  name: 'Platinum+',        tag: 'Flagship',      desc: 'Our largest model — 330 sq ft. Starting at $109,800.',     url: '/home/#models' },
+    { emoji: '🏆',  name: 'Captain Edition',  tag: 'Ultimate',      desc: 'Includes Trackman IO simulator. $211,900.',                url: '/home/#models' },
+  ],
+
+  // ── Deals / banners ──────────────────────────────
+  deals: [
+    {
+      name: '🎯 Free Quote & 3D Rendering',
+      desc: 'Get detailed pricing and a virtual 3D walkthrough — no commitment required.',
+      cta:  'Get Free Quote',
+      url:  '/home/#contact',
+    },
+  ],
+
+  // ── AI system prompt ─────────────────────────────
+  systemPrompt: `You are Ace, a knowledgeable GolfShed advisor for GolfSheds (golfsheds.com).
+
+ABOUT: Pre-fabricated luxury outdoor golf simulator buildings. Ships nationwide. Installation included.
+MODELS: XLE ($72,900+), Platinum ($96,900+), Platinum+ ($109,800+), Captain ($211,900 incl. Trackman IO).
+UPGRADES: Furnishings, blackout shades, rooftop deck, Murphy bed, theater package, mini bar, A/C & heating.
+SIMULATORS: Compatible with Trackman, Uneekor, Foresight Sports, Garmin.
+SHOWROOM: 644 N State St, Orem, UT 84057.
+
+ROLE: Help visitors find the right model. Always push for a free quote request. Keep responses 2-4 sentences.`,
+};
+</script>
+
+<!-- ============================================================
+     EVERYTHING BELOW THIS LINE IS THE ENGINE — DO NOT EDIT
+     ============================================================ -->
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --primary: #2d6a4f;
+  --primary-light: #52b788;
+  --primary-pale: rgba(45,106,79,0.1);
+  --bg-dark: #0d1117;
+  --bg-light: #f8f7f4;
+  --surface-dark: #161b22;
+  --surface-light: #ffffff;
+  --border-dark: #30363d;
+  --border-light: #e0ddd6;
+  --text-dark: #f0f6fc;
+  --text-light: #1a1916;
+  --muted-dark: #8b949e;
+  --muted-light: #6b6860;
+  --sab: env(safe-area-inset-bottom,0px);
+  --touch: 44px;
+}
+/* Theme vars applied via JS */
+body{font-family:'DM Sans',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;transition:background 0.3s;}
+.demo-page{width:100%;max-width:480px;display:flex;flex-direction:column;align-items:center;gap:20px;text-align:center;}
+.demo-logo{font-family:'DM Serif Display',serif;font-size:28px;color:var(--w);}
+.demo-tagline{font-size:12px;color:var(--m);letter-spacing:0.1em;text-transform:uppercase;}
+.demo-note{font-size:11px;color:var(--m);opacity:0.5;}
+
+/* Launcher wrap */
+.launcher-wrap{position:fixed;bottom:calc(24px + var(--sab));right:20px;display:flex;flex-direction:column;align-items:flex-end;gap:10px;z-index:99997;}
+.teaser-bubble{background:var(--w);color:var(--b);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;padding:10px 16px;border-radius:20px 20px 4px 20px;box-shadow:0 4px 20px rgba(0,0,0,0.2);cursor:pointer;max-width:240px;text-align:center;line-height:1.4;animation:teaserIn 0.5s ease 1.2s both;position:relative;}
+.teaser-bubble.hidden{display:none;}
+@keyframes teaserIn{from{opacity:0;transform:translateY(10px) scale(.95);}to{opacity:1;transform:translateY(0) scale(1);}}
+#sf-btn{width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;font-size:26px;transition:transform .2s;z-index:99998;position:relative;}
+#sf-btn:hover{transform:scale(1.06);}
+#sf-btn:active{transform:scale(.96);}
+#sf-btn.open{opacity:0.7;}
+@keyframes btnPulse{0%{transform:scale(.9);opacity:.8}70%{transform:scale(1.5);opacity:0}100%{transform:scale(1.5);opacity:0}}
+#sf-btn::before{content:'';position:absolute;width:60px;height:60px;border-radius:50%;border:2px solid var(--primary-light);animation:btnPulse 2s ease-out 1s infinite;pointer-events:none;}
+#sf-btn.open::before{animation:none;}
+
+#sf-veil{position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(3px);z-index:99998;opacity:0;pointer-events:none;transition:opacity .3s;}
+#sf-veil.on{opacity:1;pointer-events:all;}
+
+/* Widget panel */
+#sf-box{position:fixed;z-index:99999;display:flex;flex-direction:column;overflow:hidden;bottom:calc(96px + var(--sab));right:20px;width:390px;height:620px;border-radius:16px;transform:translateY(30px) scale(.96);opacity:0;pointer-events:none;transition:transform .32s cubic-bezier(.34,1.2,.64,1),opacity .25s;}
+#sf-box.on{transform:translateY(0) scale(1);opacity:1;pointer-events:all;}
+@media(max-width:479px){
+  #sf-box{bottom:0;right:0;left:0;width:100%;height:92dvh;border-radius:16px 16px 0 0;border-bottom:none;transform:translateY(100%);opacity:1;}
+  #sf-box.on{transform:translateY(0);}
+  .launcher-wrap{bottom:calc(16px + var(--sab));right:16px;}
+}
+
+/* Header */
+#sf-hd{flex-shrink:0;padding:14px 16px 12px;border-bottom:1px solid var(--bdr);}
+.sf-hrow{display:flex;align-items:center;gap:12px;}
+.sf-av{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.sf-hn{font-family:'DM Serif Display',serif;font-size:16px;color:var(--w);}
+.sf-hs{font-size:11px;display:flex;align-items:center;gap:5px;margin-top:2px;font-family:'DM Sans',sans-serif;}
+.sf-dot{width:6px;height:6px;border-radius:50%;animation:sfBlink 2s infinite;}
+@keyframes sfBlink{0%,100%{opacity:1}50%{opacity:.3}}
+#sf-x{width:34px;height:34px;border-radius:50%;font-size:18px;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;transition:all .2s;flex-shrink:0;background:rgba(128,128,128,0.15);color:var(--m);}
+#sf-x:hover{background:rgba(128,128,128,0.25);color:var(--w);}
+
+/* Messages */
+#sf-msgs{flex:1;overflow-y:auto;padding:16px 14px 8px;display:flex;flex-direction:column;gap:10px;scroll-behavior:smooth;}
+#sf-msgs::-webkit-scrollbar{width:3px;}
+#sf-msgs::-webkit-scrollbar-thumb{border-radius:2px;}
+@keyframes sfMi{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.sf-msg{display:flex;align-items:flex-end;gap:8px;max-width:92%;animation:sfMi .25s ease;}
+.sf-msg.b{align-self:flex-start;}.sf-msg.u{align-self:flex-end;flex-direction:row-reverse;}
+.sf-mav{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;margin-bottom:2px;}
+.sf-mb{padding:10px 14px;border-radius:14px;font-family:'DM Sans',sans-serif;font-size:13px;line-height:1.55;}
+.sf-msg.b .sf-mb{border-bottom-left-radius:4px;}
+.sf-msg.u .sf-mb{font-weight:500;border-bottom-right-radius:4px;}
+.sf-tdots{display:flex;gap:4px;padding:8px 4px;align-items:center;}
+@keyframes sfBn{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-6px);opacity:1}}
+.sf-tdots span{width:7px;height:7px;border-radius:50%;animation:sfBn 1.2s ease infinite;}
+.sf-tdots span:nth-child(2){animation-delay:.18s;}.sf-tdots span:nth-child(3){animation-delay:.36s;}
+
+/* Cards */
+.sf-cards{display:flex;flex-direction:column;gap:8px;max-width:300px;}
+.sf-card{border-radius:10px;padding:12px;transition:opacity .2s;cursor:pointer;border:1px solid var(--bdr);}
+.sf-card:hover{opacity:0.85;}
+.sf-card-emoji{font-size:24px;margin-bottom:6px;}
+.sf-card-tag{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px;}
+.sf-card-name{font-family:'DM Serif Display',serif;font-size:14px;color:var(--w);margin-bottom:4px;}
+.sf-card-desc{font-size:12px;color:var(--m);line-height:1.45;margin-bottom:8px;}
+.sf-card-btn{width:100%;padding:8px;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:filter .15s;color:var(--b);}
+.sf-card-btn:hover{filter:brightness(1.1);}
+.sf-card-btn.done{opacity:0.5;pointer-events:none;}
+
+/* Deal */
+.sf-deal{border-radius:10px;padding:12px 14px;max-width:300px;border:1px solid var(--bdr);}
+.sf-deal-name{font-family:'DM Serif Display',serif;font-size:14px;color:var(--w);margin-bottom:4px;}
+.sf-deal-desc{font-size:12px;color:var(--m);line-height:1.45;margin-bottom:10px;}
+.sf-deal-btn{display:inline-flex;align-items:center;gap:6px;border:none;border-radius:6px;font-size:12px;font-weight:600;padding:7px 14px;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--b);}
+
+/* Chips */
+#sf-cw{flex-shrink:0;padding:6px 14px 8px;overflow-x:auto;scrollbar-width:thin;}
+#sf-ch{display:flex;gap:6px;width:max-content;}
+.sf-chip{white-space:nowrap;padding:8px 14px;border-radius:20px;font-family:'DM Sans',sans-serif;font-size:13px;transition:all .15s;min-height:var(--touch);display:flex;align-items:center;cursor:pointer;border:1px solid var(--bdr);background:transparent;color:var(--m);}
+.sf-chip:hover{color:var(--primary-light) !important;}
+
+/* Input */
+#sf-inp-row{flex-shrink:0;display:flex;align-items:center;gap:8px;padding:10px 14px calc(10px + var(--sab));border-top:1px solid var(--bdr);}
+#sf-inp{flex:1;height:var(--touch);border-radius:22px;padding:0 16px;font-size:16px;font-family:'DM Sans',sans-serif;outline:none;-webkit-appearance:none;border:1px solid var(--bdr);}
+#sf-send{width:44px;height:44px;border-radius:50%;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:none;cursor:pointer;transition:filter .15s;color:var(--b);}
+#sf-send:hover{filter:brightness(1.1);}
+#sf-send:disabled{opacity:.4;pointer-events:none;}
+#sf-ft{flex-shrink:0;text-align:center;padding:4px 0 6px;font-family:'DM Sans',sans-serif;font-size:10px;letter-spacing:.05em;opacity:0.35;}
+
+/* Quiz progress */
+.sf-qp{display:flex;gap:4px;margin-bottom:6px;}
+.sf-qd{flex:1;height:3px;border-radius:2px;transition:background .3s;background:var(--bdr);}
+</style>
+</head>
+<body>
+
+<div class="demo-page">
+  <div class="demo-logo" id="demo-logo"></div>
+  <div class="demo-tagline" id="demo-tagline"></div>
+  <div class="demo-note">Powered by Shopflow AI · tryshopflow.com</div>
+</div>
+
+<div class="launcher-wrap">
+  <div class="teaser-bubble" id="sf-teaser" onclick="sfShow()"></div>
+  <button id="sf-btn" onclick="sfShow()"></button>
+</div>
+
+<div id="sf-veil" onclick="sfHide()"></div>
+
+<div id="sf-box">
+  <div id="sf-hd">
+    <div class="sf-hrow">
+      <div class="sf-av" id="sf-av"></div>
+      <div style="flex:1;min-width:0">
+        <div class="sf-hn" id="sf-hn"></div>
+        <div class="sf-hs" id="sf-hs"><span class="sf-dot" id="sf-dot"></span><span id="sf-sub"></span></div>
+      </div>
+      <button id="sf-x" onclick="sfHide()">✕</button>
+    </div>
+  </div>
+  <div id="sf-msgs"></div>
+  <div id="sf-cw"><div id="sf-ch"></div></div>
+  <div id="sf-inp-row">
+    <input id="sf-inp" type="text" autocomplete="off" enterkeyhint="send"/>
+    <button id="sf-send">➤</button>
+  </div>
+  <div id="sf-ft">Powered by Shopflow AI ✦</div>
+</div>
+
+<script>
+// ── Apply theme from CONFIG ───────────────────────────
+(function applyTheme(){
+  const c = CONFIG;
+  const dark = c.darkMode !== false;
+  const p = c.primaryColor;
+
+  // Derive a lighter shade for accents
+  const pLight = p; // simplified — use same color
+
+  // CSS vars
+  const vars = {
+    '--primary': p,
+    '--primary-light': pLight,
+    '--primary-pale': hexToRgba(p, 0.12),
+    '--b': dark ? '#0d1117' : '#f8f7f4',
+    '--w': dark ? '#f0f6fc' : '#1a1916',
+    '--m': dark ? '#8b949e' : '#6b6860',
+    '--bdr': dark ? '#30363d' : '#e0ddd6',
+    '--surf': dark ? '#161b22' : '#ffffff',
+  };
+  Object.entries(vars).forEach(([k,v]) => document.documentElement.style.setProperty(k, v));
+
+  // Body background
+  document.body.style.background = dark ? '#0d1117' : '#f8f7f4';
+
+  // Panel background & border
+  const box = document.getElementById('sf-box');
+  box.style.background = dark ? '#161b22' : '#ffffff';
+  box.style.border = `1px solid ${vars['--bdr']}`;
+  box.style.boxShadow = '0 20px 60px rgba(0,0,0,0.5)';
+
+  // Header background
+  document.getElementById('sf-hd').style.background = dark ? '#0d1117' : '#f0eeea';
+
+  // Messages background
+  document.getElementById('sf-msgs').style.background = dark ? '#0d1117' : '#f8f7f4';
+  document.getElementById('sf-msgs').style.setProperty('scrollbar-color', `${vars['--bdr']} transparent`);
+
+  // Chips wrap background
+  document.getElementById('sf-cw').style.background = dark ? '#0d1117' : '#f8f7f4';
+
+  // Input row
+  document.getElementById('sf-inp-row').style.background = dark ? '#0d1117' : '#ffffff';
+  document.getElementById('sf-ft').style.background = dark ? '#0d1117' : '#ffffff';
+  document.getElementById('sf-ft').style.color = vars['--m'];
+
+  // Input field
+  const inp = document.getElementById('sf-inp');
+  inp.style.background = dark ? '#21262d' : '#f0eeea';
+  inp.style.color = vars['--w'];
+  inp.placeholder = `Ask about ${c.businessName}…`;
+
+  // Send button
+  const send = document.getElementById('sf-send');
+  send.style.background = p;
+  send.style.color = '#fff';
+
+  // Launcher button
+  const btn = document.getElementById('sf-btn');
+  btn.style.background = p;
+  btn.style.boxShadow = `0 4px 20px ${hexToRgba(p, 0.45)}, 0 0 0 3px ${hexToRgba(p, 0.2)}`;
+  btn.textContent = c.launcherEmoji || '💬';
+
+  // Avatar
+  const av = document.getElementById('sf-av');
+  av.style.background = p;
+  av.textContent = c.launcherEmoji || '💬';
+
+  // Bot dot color
+  document.getElementById('sf-dot').style.background = p;
+  document.getElementById('sf-dot').style.boxShadow = `0 0 6px ${p}`;
+
+  // Teaser bubble
+  document.getElementById('sf-teaser').textContent = c.teaserText || `Chat with ${c.botName} →`;
+  document.getElementById('sf-teaser').style.color = dark ? '#0d1117' : '#1a1916';
+  document.getElementById('sf-teaser').style.background = dark ? '#f0f6fc' : '#1a1916';
+  if (!dark) document.getElementById('sf-teaser').style.color = '#fff';
+
+  // Header text
+  document.getElementById('sf-hn').textContent = c.botName;
+  document.getElementById('sf-sub').textContent = `${c.businessName} Assistant`;
+  document.getElementById('sf-dot').style.background = pLight;
+
+  // Demo page
+  document.getElementById('demo-logo').textContent = c.businessName;
+  document.getElementById('demo-logo').style.color = vars['--w'];
+  document.getElementById('demo-tagline').textContent = c.tagline || '';
+  document.getElementById('demo-tagline').style.color = vars['--m'];
+  document.title = `${c.businessName} — AI Demo`;
+})();
+
+function hexToRgba(hex, alpha) {
+  const r = parseInt(hex.slice(1,3),16);
+  const g = parseInt(hex.slice(3,5),16);
+  const b = parseInt(hex.slice(5,7),16);
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
+// ── Widget state ──────────────────────────────────────
+let isOpen=false, loading=false, convo=[], answers={};
+const msgs = document.getElementById('sf-msgs');
+const ch   = document.getElementById('sf-ch');
+const inp  = document.getElementById('sf-inp');
+const send = document.getElementById('sf-send');
+
+function sfShow(){
+  isOpen=true;
+  document.getElementById('sf-btn').classList.add('open');
+  document.getElementById('sf-box').classList.add('on');
+  document.getElementById('sf-veil').classList.add('on');
+  document.getElementById('sf-teaser').classList.add('hidden');
+  if(!msgs.children.length) startQuiz();
+  setTimeout(()=>inp.focus(),300);
+}
+function sfHide(){
+  isOpen=false;
+  document.getElementById('sf-btn').classList.remove('open');
+  document.getElementById('sf-box').classList.remove('on');
+  document.getElementById('sf-veil').classList.remove('on');
+}
+
+// ── Quiz ──────────────────────────────────────────────
+function startQuiz(){
+  convo=[];answers={};
+  typing(500,()=>{
+    botMsg(`Welcome to ${CONFIG.businessName}! ${CONFIG.launcherEmoji||'👋'}\n\nI'm **${CONFIG.botName}**, your personal assistant. Let me help you find exactly what you're looking for!`);
+    setTimeout(()=>quiz(0),600);
+  });
+}
+
+function quiz(step){
+  const questions = CONFIG.quiz || [];
+  if(step>=questions.length){recommend();return;}
+  const q = questions[step];
+  const prog = '<div class="sf-qp">'+questions.map((_,i)=>{
+    const done = i<step, active = i===step;
+    return `<div class="sf-qd" style="background:${done||active ? CONFIG.primaryColor : 'var(--bdr)'}"></div>`;
+  }).join('')+'</div>';
+  typing(350,()=>{
+    botMsg(prog+q.q);
+    chips(q.opts.map(o=>({t:o.l, fn:()=>{noChips();answers[q.id]=o.v;userMsg(o.l);quiz(step+1);}})));
+  });
+}
+
+function recommend(){
+  typing(600,()=>{
+    botMsg(`Here's what I'd recommend for you ${CONFIG.launcherEmoji||'✨'}`);
+    setTimeout(()=>showCards(CONFIG.categories||[]),300);
+    if(CONFIG.deals&&CONFIG.deals.length) setTimeout(()=>showDeal(CONFIG.deals[0]),500);
+    setTimeout(()=>{
+      chips([
+        {t:'💬 Ask a question',   fn:()=>{noChips();inp.focus();}},
+        {t:'🔁 Start over',       fn:()=>{noChips();convo=[];answers={};quiz(0);}},
+      ]);
+    },800);
+  });
+}
+
+// ── Cards ─────────────────────────────────────────────
+function ctaLabel(name){
+  const map = {shop:'Shop '+name+' →', book:'Book Consultation →', order:'Order Now →', quote:'Request Free Quote →', visit:'Visit the Store →'};
+  return map[CONFIG.ctaType]||'Learn More →';
+}
+
+function showCards(cats){
+  const cr = mk('div','sf-cards');
+  cats.slice(0,3).forEach(cat=>{
+    const card = mk('div','sf-card');
+    card.style.background = CONFIG.darkMode!==false ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.03)';
+    card.innerHTML = `
+      <div class="sf-card-emoji">${cat.emoji}</div>
+      <div class="sf-card-tag" style="color:${CONFIG.primaryColor}">${cat.tag}</div>
+      <div class="sf-card-name">${cat.name}</div>
+      <div class="sf-card-desc">${cat.desc}</div>
+      <button class="sf-card-btn" style="background:${CONFIG.primaryColor}" onclick="cardCTA(this,'${cat.name}','${cat.url}')">${ctaLabel(cat.name)}</button>`;
+    cr.appendChild(card);
+  });
+  msgs.appendChild(botRow(cr)); scrollBot();
+}
+
+function cardCTA(btn,name,url){
+  btn.textContent='✓ Opening…'; btn.classList.add('done');
+  window.open(CONFIG.siteUrl+(url||''),'_blank');
+  setTimeout(()=>{
+    botMsg(`Great choice! Feel free to ask me anything else about **${name}** or ${CONFIG.businessName}. 😊`);
+    chips([{t:'💬 Ask more',fn:()=>{noChips();inp.focus();}},{t:'🔁 Start over',fn:()=>{noChips();convo=[];answers={};quiz(0);}}]);
+  },400);
+}
+
+function showDeal(deal){
+  const d = mk('div','sf-deal');
+  d.style.background = CONFIG.darkMode!==false ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.03)';
+  d.innerHTML = `<div class="sf-deal-name">${deal.name}</div><div class="sf-deal-desc">${deal.desc}</div>
+    <button class="sf-deal-btn" style="background:${CONFIG.primaryColor}" onclick="window.open('${CONFIG.siteUrl+(deal.url||'')}','_blank')">${deal.cta} →</button>`;
+  msgs.appendChild(botRow(d)); scrollBot();
+}
+
+// ── AI chat ───────────────────────────────────────────
+async function aiChat(text){
+  if(!text.trim()||loading)return;
+  userMsg(text);noChips();inp.value='';loading=true;send.disabled=true;
+  const t=showTyping();
+  try{
+    convo.push({role:'user',content:text});
+    const r=await fetch(CONFIG.proxyUrl,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:500,system:CONFIG.systemPrompt,messages:convo.slice(-10)})});
+    if(!r.ok)throw new Error(r.status);
+    const d=await r.json();
+    const reply=d.content?.[0]?.text||'';
+    convo.push({role:'assistant',content:reply});
+    t.remove(); botMsg(reply);
+    chips([
+      {t:'📋 See options',fn:()=>{noChips();showCards(CONFIG.categories||[]);}},
+      {t:'🔁 Start over',fn:()=>{noChips();convo=[];answers={};quiz(0);}},
+    ]);
+  }catch(e){
+    t.remove();
+    botMsg(`I'm having a little trouble. Visit **${CONFIG.siteUrl.replace('https://','').replace('http://','')}** or ask me anything else!`);
+  }finally{loading=false;send.disabled=false;}
+}
+
+send.addEventListener('click',()=>aiChat(inp.value.trim()));
+inp.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();aiChat(inp.value.trim());}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&isOpen)sfHide();});
+if(window.visualViewport){window.visualViewport.addEventListener('resize',()=>{if(window.innerWidth<=479&&isOpen){document.getElementById('sf-box').style.height=window.visualViewport.height+'px';scrollBot();}});}
+
+// ── Helpers ───────────────────────────────────────────
+function mk(tag,cls){const e=document.createElement(tag);if(cls)e.className=cls;return e;}
+function botRow(c){
+  const r=mk('div','sf-msg b');
+  const a=mk('div','sf-mav');
+  a.style.background=CONFIG.primaryColor;
+  a.textContent=CONFIG.launcherEmoji||'💬';
+  r.appendChild(a);
+  const w=mk('div');w.style.cssText='display:flex;flex-direction:column;gap:6px;max-width:100%;min-width:0;';
+  w.appendChild(c);r.appendChild(w);return r;
+}
+function botMsg(text){
+  const b=mk('div','sf-mb');
+  b.style.background=CONFIG.darkMode!==false?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.05)';
+  b.style.color='var(--w)';
+  b.style.maxWidth='100%';
+  b.innerHTML=text.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');
+  msgs.appendChild(botRow(b));scrollBot();
+}
+function userMsg(text){
+  const r=mk('div','sf-msg u');
+  const b=mk('div','sf-mb');
+  b.style.background=CONFIG.primaryColor;
+  b.style.color='#fff';
+  b.textContent=text;r.appendChild(b);msgs.appendChild(r);scrollBot();
+}
+function showTyping(){
+  const r=mk('div','sf-msg b');
+  const a=mk('div','sf-mav');a.style.background=CONFIG.primaryColor;a.textContent=CONFIG.launcherEmoji||'💬';
+  const b=mk('div','sf-mb');
+  b.style.background=CONFIG.darkMode!==false?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.05)';
+  b.style.color='var(--w)';
+  b.innerHTML='<div class="sf-tdots"><span style="background:'+CONFIG.primaryColor+'"></span><span style="background:'+CONFIG.primaryColor+'"></span><span style="background:'+CONFIG.primaryColor+'"></span></div>';
+  r.appendChild(a);r.appendChild(b);msgs.appendChild(r);scrollBot();return r;
+}
+function typing(ms,cb){const t=showTyping();setTimeout(()=>{t.remove();cb();},ms);}
+function chips(list){
+  ch.innerHTML='';
+  list.forEach(({t,fn})=>{
+    const b=mk('button','sf-chip');b.textContent=t;
+    b.style.borderColor='var(--bdr)';b.style.color='var(--m)';
+    b.addEventListener('click',fn);ch.appendChild(b);
+  });
+  document.getElementById('sf-cw').scrollLeft=0;
+}
+function noChips(){ch.innerHTML='';}
+function scrollBot(){requestAnimationFrame(()=>{msgs.scrollTop=msgs.scrollHeight;});}
+</script>
+</body>
+</html>
